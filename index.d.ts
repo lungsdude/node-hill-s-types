@@ -1,6 +1,6 @@
 import { EventEmitter } from "events"
 import { Socket, Server } from "net"
-import { SmartBuffer } from "../../smart-buffer/typings/smartbuffer"
+import { SmartBuffer } from "../smart-buffer/typings/smartbuffer"
 
 declare global {
     /**@global */
