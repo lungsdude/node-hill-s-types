@@ -1,5 +1,5 @@
 {
-  "name": "@types\/node-hill",
+  "name": "node-hill-types",
   "version": "13.0.4",
   "description": "TypeScript types for Node-Hill",
   "main": "",
