@@ -80,7 +80,7 @@ declare global {
 
     //Enums
 
-    enum CameraType {
+    const enum CameraType {
         /**The camera is fixed in place. You can set the position of it. */
         Fixed = "fixed",
         /**The camera is orbiting the cameraObject (a player). You cannot set the position of it. */
@@ -91,7 +91,7 @@ declare global {
         First = "first",
     }
 
-    enum Client {
+    const enum Client {
         /**The original client made by Luke */
         Classic = 0,
         /**Brickplayer by Ty */
@@ -100,7 +100,7 @@ declare global {
         Player2 = 2,
     }
 
-    enum GameEvents {
+    const enum GameEvents {
         InitialSpawn = "initialSpawn",
         PlayerJoin = "playerJoin",
         PlayerLeave = "playerLeave",
@@ -108,7 +108,7 @@ declare global {
         Chat = "chat",
     }
 
-    enum KeyTypes {
+    const enum KeyTypes {
         alphabetical = "a-z",
         numerical = "0-9",
         shift = "shift",
@@ -117,7 +117,7 @@ declare global {
         backspace = "backspace"
     }
 
-    enum PacketEnums {
+    const enum PacketEnums {
         Authentication = 1,
 
         SendBrick = 17,
@@ -149,7 +149,7 @@ declare global {
         DeleteBrick = 16
     }
 
-    enum PlayerEvents {
+    const enum PlayerEvents {
         InitialSpawn = "initialSpawn",
         Died = "died",
         Respawn = "respawn",
@@ -158,13 +158,13 @@ declare global {
         Moved = "moved",
     }
 
-    enum ToolEvents {
+    const enum ToolEvents {
         Activated = "activated",
         Equipped = "equipped",
         Unequipped = "unequipped",
     }
 
-    enum Weather {
+    const enum Weather {
         Sun = "sun",
         Rain = "rain",
         Snow = "snow",
@@ -1545,6 +1545,8 @@ declare global {
         z: number
 
         constructor(x?: number, y?: number, z?: number)
+
+        copy(): Vector3
 
         fromVector(vector: Vector3): Vector3
 

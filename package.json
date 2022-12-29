@@ -1,6 +1,6 @@
 {
   "name": "node-hill-types",
-  "version": "13.0.4",
+  "version": "13.0.5",
   "description": "TypeScript types for Node-Hill",
   "main": "",
   "scripts": {},
