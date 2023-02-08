@@ -19,6 +19,8 @@ declare global {
      */
     const util: Utilities
 
+    const Sanction: SanctionClass
+
     /**
      * A promisified version of setTimeout, useful for writing timeouts syncronously.
      * @global
@@ -101,26 +103,85 @@ declare global {
     }
 
     const enum GameEvents {
+        /**Triggered after player loads everything
+         * 
+         * Listener:
+         * ```js
+         * (player: Player) => {...}
+         * ```
+         */
         InitialSpawn = "initialSpawn",
+        /**Triggered when player just joins the game(before anything is even loaded)
+         * 
+         * Listener:
+         * ```js
+         * (player: Player) => {...}
+         * ```
+         */
         PlayerJoin = "playerJoin",
+        /**Triggered when player leaves
+         * 
+         * Listener:
+         * ```js
+         * (player: Player) => {...}
+         * ```
+         */
         PlayerLeave = "playerLeave",
+        /**Triggered when player chats in the game.
+         * 
+         * Listener:
+         * ```js
+         * (player: Player) => {...}
+         * ```
+         */
         Chatted = "chatted",
+        /**If a Game.on("chat") listener is added, any time the game recieves a chat message, it will be emitted data to this listener, and the actual packet for sending the chat will not be sent.
+         *
+         * You can use this to intercept chat messages, and then transform them to whatever, and then call Game.messageAll.
+         * 
+         * Listener:
+         * ```js
+         * (player: Player, message: string) => {...}
+         * ```
+         */
         Chat = "chat",
+        /**Triggered when the scripts finish loading.
+         * 
+         * Listener:
+         * ```js
+         * () => {...}
+         * ```
+         */
+        ScriptsLoaded = "scriptsLoaded",
+        /**Triggered when Game.setData is populated after the initial server post. You should use Game.setDataLoaded() instead of using a listener.
+         * 
+         * Listener:
+         * ```js
+         * () => {...}
+         * ```
+         * 
+         * The proper way:
+         * ```js
+         * Game.setDataLoaded().then(() => {...})
+         * ```
+         */
+        SetDataLoaded = "setDataLoaded"
     }
 
     const enum KeyTypes {
-        alphabetical = "a-z",
-        numerical = "0-9",
-        shift = "shift",
-        space = "space",
-        enter = "enter",
-        backspace = "backspace"
+        Alphabetical = "a-z",
+        Numerical = "0-9",
+        Shift = "shift",
+        Ctrl = "control",
+        Space = "space",
+        Enter = "enter",
+        Backspace = "backspace"
     }
 
     const enum PacketEnums {
         Authentication = 1,
 
-        SendBrick = 17,
+
 
         SendPlayers = 3,
 
@@ -142,25 +203,92 @@ declare global {
 
         Bot = 12,
 
+        
+
         ClearMap = 14,
 
         DestroyBot = 15,
 
-        DeleteBrick = 16
+        DeleteBrick = 16,
+
+        SendBrick = 17,
     }
 
     const enum PlayerEvents {
+        /**Triggered once player fully loads (identical to ```GameEvents.InitialSpawn```)
+         * 
+         * Listener:
+         * ```js
+         * () => {...}
+         * ```
+         */
         InitialSpawn = "initialSpawn",
+        /**Triggered when player dies (health is less or equals 0)
+         * 
+         * Listener:
+         * ```js
+         * () => {...}
+         * ```
+         */
         Died = "died",
+        /**Triggered when player respawns
+         * 
+         * Listener:
+         * ```js
+         * () => {...}
+         * ```
+         */
         Respawn = "respawn",
+        /**Triggered when player avatar loads
+         * 
+         * Listener:
+         * ```js
+         * () => {...}
+         * ```
+         */
         AvatarLoaded = "avatarLoaded",
+        /**Triggered when player chats. Functionality-wise this behaves like ```GameEvents.Chatted```.
+         * 
+         * Listener:
+         * ```js
+         * (message: string) => {...}
+         * ```
+         */
         Chatted = "chatted",
+        /**Triggered when player moves.
+         * 
+         * Listener:
+         * ```js
+         * (newPosition: Vector3, newRotation: Vector3) => {...}
+         * ```
+         */
         Moved = "moved",
     }
 
     const enum ToolEvents {
+        /**Triggered when player clicks LMB with tool equiped.
+         * 
+         * Listener:
+         * ```js
+         * (player: Player) => {...}
+         * ```
+         */
         Activated = "activated",
+        /**Triggered when player equips the tool.
+         * 
+         * Listener:
+         * ```js
+         * (player: Player) => {...}
+         * ```
+         */
         Equipped = "equipped",
+        /**Triggered when player unequips the tool.
+         * 
+         * Listener:
+         * ```js
+         * (player: Player) => {...}
+         * ```
+         */
         Unequipped = "unequipped",
     }
 
@@ -316,15 +444,6 @@ declare global {
     }
 
     //Classes
-
-    class AssetDownloaderClass {
-        cache: Record<number, AssetData>
-
-        constructor()
-
-        fetchAssetUUID(type: string, assetId: number): Promise<{}>
-        getAssetData(assetId: number): Promise<AssetData>
-    }
 
     class Bot extends EventEmitter {
         name: string
@@ -577,313 +696,6 @@ declare global {
          * @param brick The brick used to check collision against
          */
         intersects(brick: Brick): boolean
-    }
-
-    class GameClass extends EventEmitter {
-        /** 
-       * Identical to player.on("initialSpawn").
-       * @event
-       * @example
-       * ```js
-       * Game.on("initialSpawn", (player) => {
-       *    // "player" is now fully loaded.
-        * })
-        * ```
-       */
-
-        static readonly initialSpawn = GameEvents.InitialSpawn
-
-        /** 
-       * Fires immediately whenever a player joins the game. (Before player downloads bricks, players, assets, etc).
-       * @event
-       * @param player [Player]{@link Player}
-       * @example
-       * ```js
-       * Game.on("playerJoin", (player) => {
-       *    console.log("Hello: " + player.username)
-       * })
-       * ```
-       */
-        static readonly playerJoin = GameEvents.PlayerJoin
-
-        /** 
-       * Fires whenever a player leaves the game.
-       * @event
-       * @param player [Player]{@link Player}
-       * @example
-       * ```js
-       * Game.on("playerLeave", (player) => {
-       *    console.log("Goodbye: " + player.username)
-       * })
-       * ```
-       */
-        static readonly playerLeave = GameEvents.PlayerLeave
-
-        /** 
-       * Fires whenever any player chats in the game.
-       * @event
-       * @param player [Player]{@link Player}
-       * @param message Message
-       * @example
-       * ```js
-       * Game.on("chatted", (player, message) => {
-       *    console.log(message)
-       * })
-       * ```
-       */
-        static readonly chatted = GameEvents.Chatted
-
-        /** 
-       * If a `Game.on("chat")` listener is added, any time the game recieves a chat message, it will be emitted data to this listener, and
-       * the actual packet for sending the chat will not be sent.
-       * 
-       * You can use this to intercept chat messages, and then transform them to whatever, and then call `Game.messageAll`.
-       * @event
-       * @param player [Player]{@link Player}
-       * @param message Message
-       * @example
-       * ```js
-       * Game.on("chat", (player, message) => {
-       *    Game.messageAll(player.username + " screams loudly: " + message)
-       * })
-       * ```
-       */
-        static readonly chat = GameEvents.Chat
-
-        /** @readonly An array of all currently in-game (and authenticated) players. */
-        players: Array<any>
-
-        /** @readonly The package.json "version" of the node-hill library. **/
-        version: string
-
-        /** @readonly The set id of the server. */
-        gameId: number
-
-        /** @readonly The host key of the server. */
-        hostKey: string
-
-        /** @readonly The ip of the server. */
-        ip: string
-
-        /** @readonly The port of the server. */
-        port: number
-
-        /** @readonly The map name of the server (ie: `Map.brk`) if a map is specfied.*/
-        map: string
-
-        /** The folder directory of where the server's maps are located. */
-        mapDirectory: string
-
-        /** @readonly The folder directory of where the server's user scripts are located. */
-        userScripts: string
-
-        /** @readonly If the server is currently running locally. */
-        local: boolean
-
-        /** @readonly If the files in user_script will be loaded recursively */
-        recursiveLoading: boolean
-
-        /**
-         * This property is to compensate for a client bug. If the player team is
-         * not set automatically, the user's name won't appear on their client's leaderboard.
-         * 
-         * Only disable this if you are going to set the player's team when they join.
-         */
-        assignRandomTeam: boolean
-
-        /** If set to false, players will not spawn in the game. */
-        playerSpawning: boolean
-
-        /** If set to false, the bricks of the map will not be sent to the player when they join. But they will still be loaded into memory. */
-        sendBricks: boolean
-
-        /** An array of the core scripts disabled. (ie: `["respawn.js"]`).*/
-        disabledCoreScripts: Array<string>
-
-        /** A direct pointer to the server start settings (usually start.js) */
-        serverSettings: GameSettings
-
-        /** If set to false server join messages, etc will not be sent to players. */
-        systemMessages: boolean
-
-        /**
-         * The message that will be sent to players (locally) who join the game.
-         * 
-         * @default [#14d8ff][NOTICE]: This server is proudly hosted with node-hill {@link version}.
-         */
-        MOTD: string
-
-        /**
-         * An object containing players, teams, environment settings, etc.
-         * @global
-         */
-        world: World
-
-        environment: Environment
-
-        /** @readonly An object containing a list of the modules loaded  server settings. */
-        modules: Record<string, unknown>
-
-        /** @readonly The name of the game. */
-        name: string
-
-        /** @readonly The main server TCP socket. */
-        server: Server
-
-        banNonClientTraffic: boolean
-
-        chatSettings: Record<'rateLimit', number>
-
-        constructor()
-
-        /**  
-         * Returns player stats in JSON from this API: \
-         * https://api.brick-hill.com/v1/user/profile?id={userId}
-         * 
-        */
-        getUserInfo(userId: number): Promise<JSON>
-
-        /** Sends a chat message to every player in the game. */
-        messageAll(message: string): Promise<boolean>
-
-        topPrintAll(message: string, seconds: number): Promise<boolean>
-
-        centerPrintAll(message: string, seconds: number): Promise<boolean>
-
-        bottomPrintAll(message: string, seconds: number): Promise<boolean>
-
-        /** 
-        * Commands are sent from the client when a user prefixes their message with `/` followed by any string. \
-        * In the example below, "kick" would be the command, and "user" the argument: \
-        * **Example**: `/kick user`
-        * @callback
-        * @example
-        * ```js
-        * Game.command("kick", (caller, args) => {
-        *   if (caller.userId !== 2760) return // You're not dragonian!
-        *   for (let player of Game.players) {
-        *       if (player.username.startsWith(args)) {
-        *           return player.kick("Kicked by Dragonian!")
-        *       }
-        *   }
-        * })
-        * ```
-        */
-        command(gameCommand: string, validator: (p: any, args: any, next: () => void) => void, callback?: () => void): Disconnectable
-
-        /**
-         * Identical to Game.command, but instead of a string it takes an array of commands.
-         * 
-         * This will assign them all to the same callback, this is very useful for creating alias commands.
-         * @see {@link command}
-         * @example
-         * ```js
-         * Game.commands(["msg", "message"], (p, args) => {
-         *      Game.messageAll(args)
-         * })
-         * ```
-         */
-        commands(gameCommand: string[], validator: (p: any, args: any, next: () => void) => void, callback?: () => void): Disconnectable
-        /** Returns the data for provided setId. **/
-        getSetData(setId: number): Promise<any>
-
-        /** "Parents" a bot class to the game. **/
-        newBot(bot: Bot): Promise<boolean>
-
-        newTool(tool: Tool): Promise<boolean>
-
-        newBricks(bricks: Brick[]): Promise<boolean>
-
-        /** "Parents" a brick class to the game. You should do this after setting all the brick properties. */
-        newBrick(brick: Brick): Promise<boolean>
-
-        /** Takes an array of bricks, and deletes them all from every client. This will modify world.bricks. */
-        deleteBricks(bricks: Brick[]): Promise<boolean>
-
-        /** Takes an array of teams and loads them to all clients.
-         * @example
-         * ```js
-         * let teams = {
-         *  redTeam: new Team("Red Team", "#f54242"),
-         *  blueTeam: new Team("Blue Team", "#0051ff")
-         * }
-         * 
-         * Game.newTeams(Object.values(teams))
-         * ```
-         */
-        newTeams(teams: Array<Team>): Promise<boolean>
-
-        newTeam(team: Team): Promise<boolean>
-
-        /** Takes an array of bricks and loads them to all clients. */
-        loadBricks(bricks: Array<Brick>): Promise<boolean>
-
-        /**
-         * Sets the environment for every player in the game.
-         * 
-         * Patches the world.environment with keys containing new properties.
-         * 
-         * @example
-         * ```js
-         * Game.setEnvironment({ baseSize: 500 })
-         * ```
-         */
-        setEnvironment(environment: Partial<Environment>): Promise<boolean[]>
-
-        /**
-         * Clears the map, and then calls loadBrk with the provided brk name.
-         * Then it sets all the bricks in the game, spawns, and Game.map.
-         * 
-         * MapData: bricks, spawns, environment, tools, teams, etc is returned.
-         * 
-         * @example
-         * ```js
-         * setTimeout(async() => {
-         *      // Load all bricks + spawns in the game
-         *      let data = await Game.loadBrk("headquarters2.brk")
-         *  
-         *      // Set the environment details (loadBrk does not do this).
-         *      Game.setEnvironment(data.environment)
-         * 
-         *      // This brk added spawns, let's respawn players so they aren't trapped in a brick.
-         *      Game.players.forEach((player) => {
-         *          player.respawn()
-         *      })
-         * 
-         *      console.log(data)
-         * }, 60000)
-         */
-        loadBrk(location: string): Promise<MapData>
-
-        /**
-         * Loads the brk file like Game.loadBrk, but returns the data rather than setting / modifying anything.
-         * 
-         * This is useful if you want to grab teams, bricks, etc from a brk, but don't want to modify the game yet.
-         */
-        parseBrk(location: string): Promise<MapData>
-
-        /**
-         * Clears all of the bricks for every player connected. This wipes world.bricks, any new players who
-         * join after this is ran will download no bricks from the server.
-         */
-        clearMap(): Promise<boolean>
-
-        bindToClose(callback: () => null): void
-
-        /**
-         * Exits the server process, and terminates any running scripts.
-         * @see {@link https://nodejs.org/api/process.html#process_process_exit_code} for more information.
-        */
-        shutdown(status: number): never
-
-        /** Return the distance between two points. */
-        pointDistance3D(p1: Vector3, p2: Vector3): number
-
-        /**@hidden */
-        private _newPlayer(p)
-
-        /**@hidden */
-        private _playerLeft(p)
     }
 
     class Outfit {
@@ -1435,21 +1247,6 @@ declare global {
         private _joined()
     }
 
-    class Sanction {
-        bannedIPs: Set<string>
-        allowedIPs: Set<string>
-        debugLogging: boolean
-        disabled: boolean
-
-        constructor()
-
-        debugLog(data: object): void
-
-        banPlayer(player: Player): void
-
-        banSocket(socket: ClientSocket, expirationTime: number): boolean
-    }
-
     class Team {
         readonly name: string
 
@@ -1564,4 +1361,337 @@ declare global {
 
         multiply(x: number, y: number, z: number): Vector3
     }
+}
+
+//Private
+
+declare class AssetDownloaderClass {
+    cache: Record<number, AssetData>
+
+    constructor()
+
+    fetchAssetUUID(type: string, assetId: number): Promise<{}>
+    getAssetData(assetId: number): Promise<AssetData>
+}
+
+declare class GameClass extends EventEmitter {
+    /** 
+   * Identical to player.on("initialSpawn").
+   * @event
+   * @example
+   * ```js
+   * Game.on("initialSpawn", (player) => {
+   *    // "player" is now fully loaded.
+    * })
+    * ```
+   */
+
+    static readonly initialSpawn = GameEvents.InitialSpawn
+
+    /** 
+   * Fires immediately whenever a player joins the game. (Before player downloads bricks, players, assets, etc).
+   * @event
+   * @param player [Player]{@link Player}
+   * @example
+   * ```js
+   * Game.on("playerJoin", (player) => {
+   *    console.log("Hello: " + player.username)
+   * })
+   * ```
+   */
+    static readonly playerJoin = GameEvents.PlayerJoin
+
+    /** 
+   * Fires whenever a player leaves the game.
+   * @event
+   * @param player [{@link Player}]
+   * @example
+   * ```js
+   * Game.on("playerLeave", (player) => {
+   *    console.log("Goodbye: " + player.username)
+   * })
+   * ```
+   */
+    static readonly playerLeave = GameEvents.PlayerLeave
+
+    /** 
+   * Fires whenever any player chats in the game.
+   * @event
+   * @param player [Player]{@link Player}
+   * @param message Message
+   * @example
+   * ```js
+   * Game.on("chatted", (player, message) => {
+   *    console.log(message)
+   * })
+   * ```
+   */
+    static readonly chatted = GameEvents.Chatted
+
+    /** 
+   * If a `Game.on("chat")` listener is added, any time the game recieves a chat message, it will be emitted data to this listener, and
+   * the actual packet for sending the chat will not be sent.
+   * 
+   * You can use this to intercept chat messages, and then transform them to whatever, and then call `Game.messageAll`.
+   * @event
+   * @param player [Player]{@link Player}
+   * @param message Message
+   * @example
+   * ```js
+   * Game.on("chat", (player, message) => {
+   *    Game.messageAll(player.username + " screams loudly: " + message)
+   * })
+   * ```
+   */
+    static readonly chat = GameEvents.Chat
+
+    /** @readonly An array of all currently in-game (and authenticated) players. */
+    players: Array<any>
+
+    /** @readonly The package.json "version" of the node-hill library. **/
+    version: string
+
+    /** @readonly The set id of the server. */
+    gameId: number
+
+    /** @readonly The host key of the server. */
+    hostKey: string
+
+    /** @readonly The ip of the server. */
+    ip: string
+
+    /** @readonly The port of the server. */
+    port: number
+
+    /** @readonly The map name of the server (ie: `Map.brk`) if a map is specfied.*/
+    map: string
+
+    /** The folder directory of where the server's maps are located. */
+    mapDirectory: string
+
+    /** @readonly The folder directory of where the server's user scripts are located. */
+    userScripts: string
+
+    /** @readonly If the server is currently running locally. */
+    local: boolean
+
+    /** @readonly If the files in user_script will be loaded recursively */
+    recursiveLoading: boolean
+
+    /**
+     * This property is to compensate for a client bug. If the player team is
+     * not set automatically, the user's name won't appear on their client's leaderboard.
+     * 
+     * Only disable this if you are going to set the player's team when they join.
+     */
+    assignRandomTeam: boolean
+
+    /** If set to false, players will not spawn in the game. */
+    playerSpawning: boolean
+
+    /** If set to false, the bricks of the map will not be sent to the player when they join. But they will still be loaded into memory. */
+    sendBricks: boolean
+
+    /** An array of the core scripts disabled. (ie: `["respawn.js"]`).*/
+    disabledCoreScripts: Array<string>
+
+    /** A direct pointer to the server start settings (usually start.js) */
+    serverSettings: GameSettings
+
+    /** If set to false server join messages, etc will not be sent to players. */
+    systemMessages: boolean
+
+    /**
+     * The message that will be sent to players (locally) who join the game.
+     * 
+     * @default [#14d8ff][NOTICE]: This server is proudly hosted with node-hill {@link version}.
+     */
+    MOTD: string
+
+    /**
+     * An object containing players, teams, environment settings, etc.
+     * @global
+     */
+    world: World
+
+    environment: Environment
+
+    /** @readonly An object containing a list of the modules loaded  server settings. */
+    modules: Record<string, unknown>
+
+    /** @readonly The name of the game. */
+    name: string
+
+    /** @readonly The main server TCP socket. */
+    server: Server
+
+    banNonClientTraffic: boolean
+
+    chatSettings: Record<'rateLimit', number>
+
+    constructor()
+
+    /**  
+     * Returns player stats in JSON from this API: \
+     * https://api.brick-hill.com/v1/user/profile?id={userId}
+     * 
+    */
+    getUserInfo(userId: number): Promise<JSON>
+
+    /** Sends a chat message to every player in the game. */
+    messageAll(message: string): Promise<boolean>
+
+    topPrintAll(message: string, seconds: number): Promise<boolean>
+
+    centerPrintAll(message: string, seconds: number): Promise<boolean>
+
+    bottomPrintAll(message: string, seconds: number): Promise<boolean>
+
+    /** 
+    * Commands are sent from the client when a user prefixes their message with `/` followed by any string. \
+    * In the example below, "kick" would be the command, and "user" the argument: \
+    * **Example**: `/kick user`
+    * @callback
+    * @example
+    * ```js
+    * Game.command("kick", (caller, args) => {
+    *   if (caller.userId !== 2760) return // You're not dragonian!
+    *   for (let player of Game.players) {
+    *       if (player.username.startsWith(args)) {
+    *           return player.kick("Kicked by Dragonian!")
+    *       }
+    *   }
+    * })
+    * ```
+    */
+    command(gameCommand: string, validator: (p: any, args: any, next: () => void) => void, callback?: () => void): Disconnectable
+
+    /**
+     * Identical to Game.command, but instead of a string it takes an array of commands.
+     * 
+     * This will assign them all to the same callback, this is very useful for creating alias commands.
+     * @see {@link command}
+     * @example
+     * ```js
+     * Game.commands(["msg", "message"], (p, args) => {
+     *      Game.messageAll(args)
+     * })
+     * ```
+     */
+    commands(gameCommand: string[], validator: (p: any, args: any, next: () => void) => void, callback?: () => void): Disconnectable
+    /** Returns the data for provided setId. **/
+    getSetData(setId: number): Promise<any>
+
+    /** "Parents" a bot class to the game. **/
+    newBot(bot: Bot): Promise<boolean>
+
+    newTool(tool: Tool): Promise<boolean>
+
+    newBricks(bricks: Brick[]): Promise<boolean>
+
+    /** "Parents" a brick class to the game. You should do this after setting all the brick properties. */
+    newBrick(brick: Brick): Promise<boolean>
+
+    /** Takes an array of bricks, and deletes them all from every client. This will modify world.bricks. */
+    deleteBricks(bricks: Brick[]): Promise<boolean>
+
+    /** Takes an array of teams and loads them to all clients.
+     * @example
+     * ```js
+     * let teams = {
+     *  redTeam: new Team("Red Team", "#f54242"),
+     *  blueTeam: new Team("Blue Team", "#0051ff")
+     * }
+     * 
+     * Game.newTeams(Object.values(teams))
+     * ```
+     */
+    newTeams(teams: Array<Team>): Promise<boolean>
+
+    newTeam(team: Team): Promise<boolean>
+
+    /** Takes an array of bricks and loads them to all clients. */
+    loadBricks(bricks: Array<Brick>): Promise<boolean>
+
+    /**
+     * Sets the environment for every player in the game.
+     * 
+     * Patches the world.environment with keys containing new properties.
+     * 
+     * @example
+     * ```js
+     * Game.setEnvironment({ baseSize: 500 })
+     * ```
+     */
+    setEnvironment(environment: Partial<Environment>): Promise<boolean[]>
+
+    /**
+     * Clears the map, and then calls loadBrk with the provided brk name.
+     * Then it sets all the bricks in the game, spawns, and Game.map.
+     * 
+     * MapData: bricks, spawns, environment, tools, teams, etc is returned.
+     * 
+     * @example
+     * ```js
+     * setTimeout(async() => {
+     *      // Load all bricks + spawns in the game
+     *      let data = await Game.loadBrk("headquarters2.brk")
+     *  
+     *      // Set the environment details (loadBrk does not do this).
+     *      Game.setEnvironment(data.environment)
+     * 
+     *      // This brk added spawns, let's respawn players so they aren't trapped in a brick.
+     *      Game.players.forEach((player) => {
+     *          player.respawn()
+     *      })
+     * 
+     *      console.log(data)
+     * }, 60000)
+     */
+    loadBrk(location: string): Promise<MapData>
+
+    /**
+     * Loads the brk file like Game.loadBrk, but returns the data rather than setting / modifying anything.
+     * 
+     * This is useful if you want to grab teams, bricks, etc from a brk, but don't want to modify the game yet.
+     */
+    parseBrk(location: string): Promise<MapData>
+
+    /**
+     * Clears all of the bricks for every player connected. This wipes world.bricks, any new players who
+     * join after this is ran will download no bricks from the server.
+     */
+    clearMap(): Promise<boolean>
+
+    bindToClose(callback: () => null): void
+
+    /**
+     * Exits the server process, and terminates any running scripts.
+     * @see {@link https://nodejs.org/api/process.html#process_process_exit_code} for more information.
+    */
+    shutdown(status: number): never
+
+    /** Return the distance between two points. */
+    pointDistance3D(p1: Vector3, p2: Vector3): number
+
+    /**@hidden */
+    private _newPlayer(p)
+
+    /**@hidden */
+    private _playerLeft(p)
+}
+
+declare class SanctionClass {
+    bannedIPs: Set<string>
+    allowedIPs: Set<string>
+    debugLogging: boolean
+    disabled: boolean
+
+    constructor()
+
+    debugLog(data: object): void
+
+    banPlayer(player: Player): void
+
+    banSocket(socket: ClientSocket, expirationTime: number): boolean
 }
