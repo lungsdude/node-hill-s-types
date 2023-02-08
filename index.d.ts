@@ -1005,7 +1005,7 @@ declare global {
 
         static playerId: number
 
-        constructor(socket: any)
+        private constructor(socket: ClientSocket)
 
         /** 
        * Calls back whenever the player clicks.
