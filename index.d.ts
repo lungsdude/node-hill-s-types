@@ -306,14 +306,16 @@ declare global {
     }
 
     interface Assets {
+        tool: number
         face: number
         hat1: number
         hat2: number
         hat3: number
-        pants: number
-        shirt: number
-        tool: number
-        tshirt: number
+        clothing1: number,
+        clothing2: number,
+        clothing3: number,
+        clothing4: number,
+        clothing5: number,
     }
 
     interface BodyColors {
@@ -718,13 +720,37 @@ declare global {
         face(faceId: number): Outfit
 
         /** Sets the player's shirt to the asset id specified. */
+        /**
+        * @deprecated Use {@link clothing1} instead.
+        */
         shirt(shirtId: number): Outfit
-
+    
         /** Sets the player's pants to the asset id specified. */
+        /** 
+        * @deprecated Use {@link clothing2} instead.
+        */
         pants(pantsId: number): Outfit
-
+    
         /** Sets the player's tshirt to the asset id specified. */
+        /** 
+        * @deprecated Use {@link clothing3} instead.
+        */
         tshirt(tshirtId: number): Outfit
+    
+        /** Sets the player's clothing1 to the asset id specified. */
+        clothing1(clothingid: number): Outfit
+    
+        /** Sets the player's clothing2 to the asset id specified. */
+        clothing2(clothingid: number): Outfit
+    
+        /** Sets the player's clothing3 to the asset id specified. */
+        clothing3(clothingid: number): Outfit
+    
+        /** Sets the player's clothing4 to the asset id specified. */
+        clothing4(clothingid: number): Outfit
+    
+        /** Sets the player's clothing5 to the asset id specified. */
+        clothing5(clothingid: number): Outfit
 
         /** Sets all of the player's body colors to a hex string. */
         body(color: string): Outfit
@@ -1191,6 +1217,20 @@ declare global {
         ``` 
          */
         ownsAsset(assetId: number): Promise<boolean>
+
+        /**
+         * Returns JSON data of total value and direction of users crate \
+         * https://api.brick-hill.com/v1/user/1/value
+         * 
+         * @example
+         * ```js
+         * Game.on("playerJoin", async(p) => {
+         *  let worth = await p.getValue(1524)
+         *  console.log("Player is worth: ", worth.value)
+         * })
+        ``` 
+         */
+        getValue(): Promise<JSON>
 
         /**
          * Returns JSON data of the users rank in a group, or false if they aren't in the group. \
