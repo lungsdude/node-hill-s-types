@@ -813,30 +813,6 @@ declare global {
         send(socket: ClientSocket): Promise<boolean>
     }
 
-    interface Player
-    {
-        on(event: PlayerEvents.AvatarLoaded, listener: () => void): this;
-        on(event: PlayerEvents.Chatted, listener: (Message: string) => void): this;
-        on(event: PlayerEvents.Died, listener: () => void): this;
-        on(event: PlayerEvents.InitialSpawn, listener: () => void): this;
-        on(event: PlayerEvents.Moved, listener: (NewPosition: Vector3, NewRotation: Vector3) => void): this;
-        on(event: PlayerEvents.Respawn, listener: () => void): this;
-        //
-        once(event: PlayerEvents.AvatarLoaded, listener: () => void): this;
-        once(event: PlayerEvents.Chatted, listener: (Message: string) => void): this;
-        once(event: PlayerEvents.Died, listener: () => void): this;
-        once(event: PlayerEvents.InitialSpawn, listener: () => void): this;
-        once(event: PlayerEvents.Moved, listener: (NewPosition: Vector3, NewRotation: Vector3) => void): this;
-        once(event: PlayerEvents.Respawn, listener: () => void): this;
-        //
-        off(event: PlayerEvents.AvatarLoaded, listener: () => void): this;
-        off(event: PlayerEvents.Chatted, listener: (Message: string) => void): this;
-        off(event: PlayerEvents.Died, listener: () => void): this;
-        off(event: PlayerEvents.InitialSpawn, listener: () => void): this;
-        off(event: PlayerEvents.Moved, listener: (NewPosition: Vector3, NewRotation: Vector3) => void): this;
-        off(event: PlayerEvents.Respawn, listener: () => void): this;
-    }
-
     class Player extends EventEmitter {
         /** 
        * Fires once when the player fully loads. (camera settings, map loads, players downloaded, etc).
@@ -1328,21 +1304,6 @@ declare global {
         get players(): Array<Player>
     }
 
-    interface Tool
-    {
-        on<T extends Player>(event: ToolEvents.Activated, listener: (Player: T) => void): this;
-        on<T extends Player>(event: ToolEvents.Equipped, listener: (Player: T) => void): this;
-        on<T extends Player>(event: ToolEvents.Unequipped, listener: (Player: T) => void): this;
-        //
-        once<T extends Player>(event: ToolEvents.Activated, listener: (Player: T) => void): this;
-        once<T extends Player>(event: ToolEvents.Equipped, listener: (Player: T) => void): this;
-        once<T extends Player>(event: ToolEvents.Unequipped, listener: (Player: T) => void): this;
-        //
-        off<T extends Player>(event: ToolEvents.Activated, listener: (Player: T) => void): this;
-        off<T extends Player>(event: ToolEvents.Equipped, listener: (Player: T) => void): this;
-        off<T extends Player>(event: ToolEvents.Unequipped, listener: (Player: T) => void): this;
-    }
-
     class Tool extends EventEmitter {
         /** The name of the tool. **/
         readonly name: string
@@ -1451,34 +1412,6 @@ declare class AssetDownloaderClass {
 
     fetchAssetUUID(type: string, assetId: number): Promise<{}>
     getAssetData(assetId: number): Promise<AssetData>
-}
-
-declare interface GameClass {
-    on<T extends Player>(event: GameEvents.Chat, listener: (Player: T, Message: string) => void): this;
-    on<T extends Player>(event: GameEvents.Chatted, listener: (Player: T) => void): this;
-    on<T extends Player>(event: GameEvents.InitialSpawn, listener: (Player: T) => void): this;
-    on<T extends Player>(event: GameEvents.PlayerJoin, listener: (Player: T) => void): this;
-    on<T extends Player>(event: GameEvents.PlayerLeave, listener: (Player: T) => void): this;
-    on(event: GameEvents.ScriptsLoaded, listener: () => void): this;
-    on(event: GameEvents.SetDataLoaded, listener: () => void): this;
-
-    //
-    once<T extends Player>(event: GameEvents.Chat, listener: (Player: T, Message: string) => void): this;
-    once<T extends Player>(event: GameEvents.Chatted, listener: (Player: T) => void): this;
-    once<T extends Player>(event: GameEvents.InitialSpawn, listener: (Player: T) => void): this;
-    once<T extends Player>(event: GameEvents.PlayerJoin, listener: (Player: T) => void): this;
-    once<T extends Player>(event: GameEvents.PlayerLeave, listener: (Player: T) => void): this;
-    once(event: GameEvents.ScriptsLoaded, listener: () => void): this;
-    once(event: GameEvents.SetDataLoaded, listener: () => void): this;
-
-    //
-    off<T extends Player>(event: GameEvents.Chat, listener: (Player: T, Message: string) => void): this;
-    off<T extends Player>(event: GameEvents.Chatted, listener: (Player: T) => void): this;
-    off<T extends Player>(event: GameEvents.InitialSpawn, listener: (Player: T) => void): this;
-    off<T extends Player>(event: GameEvents.PlayerJoin, listener: (Player: T) => void): this;
-    off<T extends Player>(event: GameEvents.PlayerLeave, listener: (Player: T) => void): this;
-    off(event: GameEvents.ScriptsLoaded, listener: () => void): this;
-    off(event: GameEvents.SetDataLoaded, listener: () => void): this;
 }
 
 declare class GameClass extends EventEmitter {
