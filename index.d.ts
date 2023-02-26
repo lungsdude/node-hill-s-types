@@ -60,7 +60,7 @@ declare global {
      * }, 5000))
      * ```
      */
-    const debouncePlayer: (callback: (player: any, ...args: any[]) => void, delay: number) => void
+    const debouncePlayer: <T extends Player>(callback: (player: T, ...args: any[]) => void, delay: number) => void
 
     /**Modules in start.js are built in host (outside of the vm). It is highly recommended to use this function
      * to require them in a VM context. If you opt to use require() instead, you may have issues.
@@ -427,7 +427,7 @@ declare global {
         filterModule: { getFilter: () => string[]; isSwear: (input: string) => boolean; setFilter: (filter: string[]) => void }
         serialize: { deserialize: (data: Buffer) => Brick[]; serialize: (bricks: Brick[]) => Buffer }
         color: { convertRGB: (r: number, g: number, b: number) => number[]; hexToDec: (hex: string, bgr?: boolean) => string; hexToRGB: (hex: string) => number[]; randomHexColor: () => string; rgbToBgr: (rgb: string) => string; rgbToDec: (r: number, g: number, b: number) => string; rgbToHex: (r: number, g: number, b: number) => string }
-        chat: { generateTitle: (p: Player, message: string) => string }
+        chat: { generateTitle: (Player: Player, message: string) => string }
     }
 
     interface World {
@@ -518,13 +518,13 @@ declare global {
         moveTowardsPlayer(player: Player, speed: number): typeof this.moveTowardsPoint
 
         /** Returns the closest player to the bot, or null. */
-        findClosestPlayer(minDist: number): Player
+        findClosestPlayer<T extends Player>(minDist: number): T
 
         /** Sets the bots avatar to a provided userId. */
         setAvatar(userId: number): Promise<boolean>
 
         /** Starts hit detection for the bot. */
-        touching(callback: (player: any) => void): Disconnectable
+        touching<T extends Player>(callback: (player: T) => void): Disconnectable
 
         private _detectTouching()
     }
@@ -644,7 +644,7 @@ declare global {
          * camera.pointTowards(dummyObject.position)
          * ```
          */
-        pointTowards(point: Vector3): typeof this.setRotation
+        pointTowards(point: Vector3): Promise<boolean>
         /** 
         * Calls the specified callback when a player clicks the brick.
         * @callback
@@ -658,7 +658,7 @@ declare global {
         * })
         * ```
         */
-        clicked(callback: (player: Player, secure?: boolean) => void): Disconnectable
+        clicked<T extends Player>(callback: (player: T, secure?: boolean) => void): Disconnectable
 
         /** 
         * Calls the specified callback when a player (who previously touched the brick) steps off of it. \
@@ -675,7 +675,7 @@ declare global {
         * })
         * ```
         */
-        touchingEnded(callback: (player: any) => void): Disconnectable
+        touchingEnded<T extends Player>(callback: (player: T) => void): Disconnectable
 
         /** 
         * Calls the specified callback with the player who touched the brick.
@@ -689,7 +689,7 @@ declare global {
         * })
         * ```
         */
-        touching(callback: (player: any) => void): Disconnectable
+        touching<T extends Player>(callback: (player: T) => void): Disconnectable
 
         private _detectTouching()
 
@@ -811,6 +811,30 @@ declare global {
          * Send a packet to a single client.
         */
         send(socket: ClientSocket): Promise<boolean>
+    }
+
+    interface Player
+    {
+        on(event: PlayerEvents.AvatarLoaded, listener: () => void): this;
+        on(event: PlayerEvents.Chatted, listener: (Message: string) => void): this;
+        on(event: PlayerEvents.Died, listener: () => void): this;
+        on(event: PlayerEvents.InitialSpawn, listener: () => void): this;
+        on(event: PlayerEvents.Moved, listener: (NewPosition: Vector3, NewRotation: Vector3) => void): this;
+        on(event: PlayerEvents.Respawn, listener: () => void): this;
+        //
+        once(event: PlayerEvents.AvatarLoaded, listener: () => void): this;
+        once(event: PlayerEvents.Chatted, listener: (Message: string) => void): this;
+        once(event: PlayerEvents.Died, listener: () => void): this;
+        once(event: PlayerEvents.InitialSpawn, listener: () => void): this;
+        once(event: PlayerEvents.Moved, listener: (NewPosition: Vector3, NewRotation: Vector3) => void): this;
+        once(event: PlayerEvents.Respawn, listener: () => void): this;
+        //
+        off(event: PlayerEvents.AvatarLoaded, listener: () => void): this;
+        off(event: PlayerEvents.Chatted, listener: (Message: string) => void): this;
+        off(event: PlayerEvents.Died, listener: () => void): this;
+        off(event: PlayerEvents.InitialSpawn, listener: () => void): this;
+        off(event: PlayerEvents.Moved, listener: (NewPosition: Vector3, NewRotation: Vector3) => void): this;
+        off(event: PlayerEvents.Respawn, listener: () => void): this;
     }
 
     class Player extends EventEmitter {
@@ -1139,13 +1163,13 @@ declare global {
         setCameraType(type: CameraType): Promise<boolean>
 
         /** Returns an arary of all the players currently blocking this user. */
-        getBlockedPlayers(): any[]
+        getBlockedPlayers(): Player[]
 
         /** Adds the tool to the user's inventory. */
         addTool(tool: Tool): Promise<boolean>
 
         /** Takes an array of bricks and loads them to the client locally. */
-        loadBricks(bricks: Array<Brick>): Promise<boolean>
+        loadBricks(bricks: Brick[]): Promise<boolean>
 
         /** Takes an array of bricks, and deletes them all from this client. */
         deleteBricks(bricks: Brick[]): Promise<boolean>
@@ -1176,7 +1200,7 @@ declare global {
         newBrick(brick: Brick): Promise<Brick>
 
         /**Clones an array of bricks locally to the player's client, returns an array containing the cloned bricks. */
-        newBricks(bricks: Array<Brick>): Promise<any[]>
+        newBricks(bricks: Brick[]): Promise<Brick[]>
 
         setPosition(position: Vector3): Promise<boolean>
 
@@ -1304,6 +1328,21 @@ declare global {
         get players(): Array<Player>
     }
 
+    interface Tool
+    {
+        on<T extends Player>(event: ToolEvents.Activated, listener: (Player: T) => void): this;
+        on<T extends Player>(event: ToolEvents.Equipped, listener: (Player: T) => void): this;
+        on<T extends Player>(event: ToolEvents.Unequipped, listener: (Player: T) => void): this;
+        //
+        once<T extends Player>(event: ToolEvents.Activated, listener: (Player: T) => void): this;
+        once<T extends Player>(event: ToolEvents.Equipped, listener: (Player: T) => void): this;
+        once<T extends Player>(event: ToolEvents.Unequipped, listener: (Player: T) => void): this;
+        //
+        off<T extends Player>(event: ToolEvents.Activated, listener: (Player: T) => void): this;
+        off<T extends Player>(event: ToolEvents.Equipped, listener: (Player: T) => void): this;
+        off<T extends Player>(event: ToolEvents.Unequipped, listener: (Player: T) => void): this;
+    }
+
     class Tool extends EventEmitter {
         /** The name of the tool. **/
         readonly name: string
@@ -1357,7 +1396,7 @@ declare global {
         * })
         * ```
         */
-        unequipped(callback: (player: Player) => void): Disconnectable
+        unequipped<T extends Player>(callback: (player: T) => void): Disconnectable
 
         /** 
         * Calls the specified callback with the player who equipped the tool.
@@ -1370,7 +1409,7 @@ declare global {
         * })
         * ```
         */
-        equipped(callback: (player: Player) => void): Disconnectable
+        equipped<T extends Player>(callback: (player: T) => void): Disconnectable
 
         /** Completely destroys the tool, unequips it from all players, deletes it from their inventroy, and removes it from Game.world.tools. */
         destroy(): Promise<boolean>
@@ -1412,6 +1451,34 @@ declare class AssetDownloaderClass {
 
     fetchAssetUUID(type: string, assetId: number): Promise<{}>
     getAssetData(assetId: number): Promise<AssetData>
+}
+
+declare interface GameClass {
+    on<T extends Player>(event: GameEvents.Chat, listener: (Player: T, Message: string) => void): this;
+    on<T extends Player>(event: GameEvents.Chatted, listener: (Player: T) => void): this;
+    on<T extends Player>(event: GameEvents.InitialSpawn, listener: (Player: T) => void): this;
+    on<T extends Player>(event: GameEvents.PlayerJoin, listener: (Player: T) => void): this;
+    on<T extends Player>(event: GameEvents.PlayerLeave, listener: (Player: T) => void): this;
+    on(event: GameEvents.ScriptsLoaded, listener: () => void): this;
+    on(event: GameEvents.SetDataLoaded, listener: () => void): this;
+
+    //
+    once<T extends Player>(event: GameEvents.Chat, listener: (Player: T, Message: string) => void): this;
+    once<T extends Player>(event: GameEvents.Chatted, listener: (Player: T) => void): this;
+    once<T extends Player>(event: GameEvents.InitialSpawn, listener: (Player: T) => void): this;
+    once<T extends Player>(event: GameEvents.PlayerJoin, listener: (Player: T) => void): this;
+    once<T extends Player>(event: GameEvents.PlayerLeave, listener: (Player: T) => void): this;
+    once(event: GameEvents.ScriptsLoaded, listener: () => void): this;
+    once(event: GameEvents.SetDataLoaded, listener: () => void): this;
+
+    //
+    off<T extends Player>(event: GameEvents.Chat, listener: (Player: T, Message: string) => void): this;
+    off<T extends Player>(event: GameEvents.Chatted, listener: (Player: T) => void): this;
+    off<T extends Player>(event: GameEvents.InitialSpawn, listener: (Player: T) => void): this;
+    off<T extends Player>(event: GameEvents.PlayerJoin, listener: (Player: T) => void): this;
+    off<T extends Player>(event: GameEvents.PlayerLeave, listener: (Player: T) => void): this;
+    off(event: GameEvents.ScriptsLoaded, listener: () => void): this;
+    off(event: GameEvents.SetDataLoaded, listener: () => void): this;
 }
 
 declare class GameClass extends EventEmitter {
@@ -1486,7 +1553,7 @@ declare class GameClass extends EventEmitter {
     static readonly chat = GameEvents.Chat
 
     /** @readonly An array of all currently in-game (and authenticated) players. */
-    players: Array<any>
+    players: Array<Player>
 
     /** @readonly The package.json "version" of the node-hill library. **/
     version: string
@@ -1604,7 +1671,7 @@ declare class GameClass extends EventEmitter {
     * })
     * ```
     */
-    command(gameCommand: string, validator: (p: any, args: any, next: () => void) => void, callback?: () => void): Disconnectable
+    command<T extends Player>(gameCommand: string, validator: (Player: T, args: string, next: () => void) => void, callback?: () => void): Disconnectable
 
     /**
      * Identical to Game.command, but instead of a string it takes an array of commands.
@@ -1618,7 +1685,7 @@ declare class GameClass extends EventEmitter {
      * })
      * ```
      */
-    commands(gameCommand: string[], validator: (p: any, args: any, next: () => void) => void, callback?: () => void): Disconnectable
+    commands<T extends Player>(gameCommand: string[], validator: (Player: T, args: string, next: () => void) => void, callback?: () => void): Disconnectable
     /** Returns the data for provided setId. **/
     getSetData(setId: number): Promise<any>
 
