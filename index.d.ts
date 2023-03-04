@@ -814,6 +814,13 @@ declare global {
     }
 
     class Player extends EventEmitter {
+
+        public on<K extends keyof PlayerEventListeners>(event: K, listener: (...args: PlayerEventListeners[K]) => void): this;
+        public on<S extends string | symbol>(
+          event: Exclude<S, keyof PlayerEventListeners>,
+          listener: (...args: any[]) => void,
+        ): this;
+
         /** 
        * Fires once when the player fully loads. (camera settings, map loads, players downloaded, etc).
        * @event
@@ -1305,6 +1312,13 @@ declare global {
     }
 
     class Tool extends EventEmitter {
+
+        public on<K extends keyof ToolEventListeners>(event: K, listener: (...args: ToolEventListeners[K]) => void): this;
+        public on<S extends string | symbol>(
+          event: Exclude<S, keyof ToolEventListeners>,
+          listener: (...args: any[]) => void,
+        ): this;
+
         /** The name of the tool. **/
         readonly name: string
         /** If set to false, players will not be able to equip or de-equip the tool. */
@@ -1414,7 +1428,42 @@ declare class AssetDownloaderClass {
     getAssetData(assetId: number): Promise<AssetData>
 }
 
+declare interface GameEventListeners
+{
+    Chat: [player: Player, message: string],
+    Chatted: [player: Player],
+    InitialSpawn: [player: Player],
+    PlayerJoin: [player: Player],
+    PlayerLeave: [player: Player],
+    ScriptsLoaded: [],
+    SetDataLoaded: [],
+}
+
+declare interface PlayerEventListeners
+{
+    AvatarLoaded: [],
+    Chatted: [message: string],
+    Died: [],
+    InitialSpawn: [],
+    Moved: [newPosition: Vector3, newRotation: Vector3],
+    Respawn: [],
+}
+
+declare interface ToolEventListeners
+{
+    Activated: [player: Player],
+    Equipped: [player: Player],
+    Unequipped: [player: Player],
+}
+
 declare class GameClass extends EventEmitter {
+
+    public on<K extends keyof GameEventListeners>(event: K, listener: (...args: GameEventListeners[K]) => void): this;
+    public on<S extends string | symbol>(
+      event: Exclude<S, keyof GameEventListeners>,
+      listener: (...args: any[]) => void,
+    ): this;
+
     /** 
    * Identical to player.on("initialSpawn").
    * @event
