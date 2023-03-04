@@ -1430,30 +1430,30 @@ declare class AssetDownloaderClass {
 
 declare interface GameEventListeners
 {
-    Chat: [player: Player, message: string],
-    Chatted: [player: Player],
-    InitialSpawn: [player: Player],
-    PlayerJoin: [player: Player],
-    PlayerLeave: [player: Player],
-    ScriptsLoaded: [],
-    SetDataLoaded: [],
+    chat: [player: Player, message: string],
+    chatted: [player: Player],
+    initialSpawn: [player: Player],
+    playerJoin: [player: Player],
+    playerLeave: [player: Player],
+    scriptsLoaded: [],
+    setDataLoaded: [],
 }
 
 declare interface PlayerEventListeners
 {
-    AvatarLoaded: [],
-    Chatted: [message: string],
-    Died: [],
-    InitialSpawn: [],
-    Moved: [newPosition: Vector3, newRotation: Vector3],
-    Respawn: [],
+    avatarLoaded: [],
+    chatted: [message: string],
+    died: [],
+    initialSpawn: [],
+    moved: [newPosition: Vector3, newRotation: Vector3],
+    respawn: [],
 }
 
 declare interface ToolEventListeners
 {
-    Activated: [player: Player],
-    Equipped: [player: Player],
-    Unequipped: [player: Player],
+    activated: [player: Player],
+    equipped: [player: Player],
+    unequipped: [player: Player],
 }
 
 declare class GameClass extends EventEmitter {
