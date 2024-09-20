@@ -1,18 +1,18 @@
 {
-  "name": "node-hill-types",
-  "version": "13.1.104",
-  "description": "TypeScript types for Node-Hill",
+  "name": "node-hill-s-types",
+  "version": "13.3.1",
+  "description": "TypeScript types for node-hill-s",
   "main": "",
   "scripts": {},
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Voron-dev/node-hill-types.git"
+    "url": "git+https://github.com/lungsdude/node-hill-s-types.git"
   },
-  "author": "Voron",
+  "author": "lungsdude",
   "license": "GPL V3",
   "types": "./index.d.ts",
   "bugs": {
-    "url": "https://github.com/Voron-dev/node-hill-types/issues"
+    "url": "https://github.com/lungsdude/node-hill-s-types/issues"
   },
-  "homepage": "https://github.com/Voron-dev/node-hill-types#readme"
+  "homepage": "https://github.com/lungsdude/node-hill-s-types#readme"
 }
