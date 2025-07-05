@@ -562,7 +562,7 @@ declare global {
         /** Remove the sound emitter from Game.world, \
          * clear all event listeners, \
          * and tell clients to delete the sound emitter. */
-        destroy()
+        destroy(): void
 
         /**
      * Identical to setInterval, but will be cleared after the sound emitter is destroyed.
