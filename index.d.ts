@@ -165,17 +165,41 @@ declare global {
          * Game.setDataLoaded().then(() => {...})
          * ```
          */
-        SetDataLoaded = "setDataLoaded"
+        SetDataLoaded = "setDataLoaded",
+        /**Triggered when receives a new packet
+         * 
+         * Listener:
+         * ```js
+         * (packetData: PacketData) => {...}
+         * ```
+         */
+        NewPacket = "newPacket",
     }
 
     const enum KeyTypes {
         Alphabetical = "a-z",
         Numerical = "0-9",
         Shift = "shift",
-        Ctrl = "control",
+        Lshift = "lshift",
+        Rshift = "rshift",
+        Control = "control",
+        Lcontrol = "lcontrol",
+        Rcontrol = "rcontrol",
+        Alt = "alt",
+        Ralt = "ralt",
+        Lalt = "lalt",
+        Tab = "tab",
         Space = "space",
+        Return = "return",
         Enter = "enter",
-        Backspace = "backspace"
+        Backspace = "backspace",
+        Mouse1 = "mouse1",
+        Mouse2 = "mouse2",
+        Mouse3 = "mouse3",
+        Up = "up",
+        Down = "down",
+        Left = "left",
+        Right = "right",
     }
 
     const enum PacketEnums {
@@ -203,7 +227,7 @@ declare global {
 
         Bot = 12,
 
-        
+
 
         ClearMap = 14,
 
@@ -212,6 +236,12 @@ declare global {
         DeleteBrick = 16,
 
         SendBrick = 17,
+
+        AddKeypress = 21,
+
+        SoundEmitter = 22,
+
+        SendSoundEmitters = 23,
     }
 
     const enum PlayerEvents {
@@ -303,6 +333,7 @@ declare global {
     interface AssetData {
         mesh: string
         texture: string
+        sound: string
     }
 
     interface Assets {
@@ -329,6 +360,7 @@ declare global {
 
     interface ClientSocket extends Socket {
         _attemptedAuthentication: boolean
+        _kickInProcess: boolean
         player: Player
         IPV4: string
         IP: string
@@ -341,6 +373,7 @@ declare global {
         _chunk: {
             recieve: Buffer
             remaining: number
+            clear: () => void
         }
     }
 
@@ -419,15 +452,58 @@ declare global {
         teams: Array<Team>,
     }
 
+    interface SetData {
+        id: number,
+        creator: {
+            id: number,
+            username: string,
+            avatar_hash: string
+        },
+        name: string,
+        description: string,
+        playing: number,
+        visits: number,
+        created_at: string,
+        updated_at: string,
+        thumbnail: string | null,
+        genre: {
+            id: number,
+            type: string
+        }
+    }
+
     interface PacketBuilderOptions {
         compression?: boolean
     }
 
     interface Utilities {
-        filterModule: { getFilter: () => string[]; isSwear: (input: string) => boolean; setFilter: (filter: string[]) => void }
-        serialize: { deserialize: (data: Buffer) => Brick[]; serialize: (bricks: Brick[]) => Buffer }
-        color: { convertRGB: (r: number, g: number, b: number) => number[]; hexToDec: (hex: string, bgr?: boolean) => string; hexToRGB: (hex: string) => number[]; randomHexColor: () => string; rgbToBgr: (rgb: string) => string; rgbToDec: (r: number, g: number, b: number) => string; rgbToHex: (r: number, g: number, b: number) => string }
-        chat: { generateTitle: (Player: Player, message: string) => string }
+        filter: {
+            getFilter: () => string[]
+            setFilter: (filter: string[]) => void
+            isSwear: (input: string) => boolean
+            addFilter: (input: string) => void
+        }
+
+        serialize: {
+            serialize: (bricks: Brick[]) => Buffer
+            deserialize: (data: Buffer) => Brick[]
+        }
+
+        color: {
+            randomHexColor: () => string
+            convertRGB: (r: number, g: number, b: number) => number[]
+            hexToDec: (hex: string, bgr?: boolean) => string
+            hexToRGB: (hex: string) => number[]
+            rgbToBgr: (rgb: string) => string
+            rgbToDec: (r: number, g: number, b: number) => string
+            rgbToHex: (r: number, g: number, b: number) => string
+        }
+
+        chat: {
+            generateTitle: (Player: Player, message: string) => string
+            validateMessage: (Player: Player, message: string) => boolean
+            removeColorTags: (input: string) => string
+        }
     }
 
     interface World {
@@ -443,9 +519,85 @@ declare global {
         bots: Array<Bot>,
         /** An array of all the tools in the game. */
         tools: Array<Tool>,
+        /** An array of all the sound emitters in the game. */
+        sounds: Array<SoundEmitter>,
     }
 
     //Classes
+
+    class SoundEmitter extends EventEmitter {
+        name: string
+
+        netId: number
+
+        /** Item id of the sound to use */
+        sound: number
+
+        /** Volume of the sound emitted */
+        volume: number
+
+        /** Pitch of the sound emitted */
+        pitch: number
+
+        /** Range of the sound emitted */
+        range: number
+
+        /** Whether or not to loop the sound */
+        loop: boolean
+
+        /** Whether or not to play the sound globally */
+        global: boolean
+
+        position: Vector3
+
+        /** If .destroy() has been called on the sound emitter. */
+        destroyed: boolean
+
+        private _steps: Array<NodeJS.Timeout>
+
+        static soundEmitterId: number
+
+        constructor(sound: number, position: Vector3, range: number)
+
+        /** Remove the sound emitter from Game.world, \
+         * clear all event listeners, \
+         * and tell clients to delete the sound emitter. */
+        destroy()
+
+        /**
+     * Identical to setInterval, but will be cleared after the sound emitter is destroyed.
+     * Use this if you want to attach loops to sound emitters, but don't want to worry about clearing them after they're destroyed.
+     * @param callback The callback function.
+     * @param delay The delay in milliseconds.
+     */
+        setInterval(callback: () => void, delay: number): NodeJS.Timeout
+
+        /** Set the position of the sound emitter. */
+        setPosition(position: Vector3): Promise<boolean>
+
+        /** Set the volume of the sound emitter. */
+        setVolume(volume: number): Promise<boolean>
+
+        /** Set the pitch of the sound emitter. */
+        setPitch(pitch: number): Promise<boolean>
+
+        /** Set the looping of the sound emitter. */
+        setLoop(loop: boolean): Promise<boolean>
+
+        /** Set the range of the sound emitter. */
+        setRange(range: number): Promise<boolean>
+
+        setGlobal(global: boolean): Promise<boolean>
+
+        /** Set the sound to emit. */
+        setSound(sound: number): Promise<boolean>
+
+        /** Play the sound */
+        play(): Promise<boolean>
+
+        /** Stop the sound */
+        stop(): Promise<boolean>
+    }
 
     class Bot extends EventEmitter {
         name: string
@@ -509,13 +661,13 @@ declare global {
         lookAtPoint(position: Vector3): number
 
         /** Turns the bot to face the player provided. */
-        lookAtPlayer(player: Player): typeof this.lookAtPoint
+        lookAtPlayer(player: Player): number
 
         /** Moves the bot to the point provided. */
         moveTowardsPoint(pos: Vector3, speed: number): Promise<boolean>
 
         /** Moves the bot towards the player. */
-        moveTowardsPlayer(player: Player, speed: number): typeof this.moveTowardsPoint
+        moveTowardsPlayer(player: Player, speed: number): Promise<boolean>
 
         /** Returns the closest player to the bot, or null. */
         findClosestPlayer<T extends Player>(minDist: number): T
@@ -814,7 +966,6 @@ declare global {
     }
 
     class Player extends EventEmitter {
-
         public on<K extends keyof PlayerEventListeners>(event: K, listener: (...args: PlayerEventListeners[K]) => void): this;
         public on<S extends string | symbol>(
             event: Exclude<S, keyof PlayerEventListeners>,
@@ -910,7 +1061,7 @@ declare global {
 
         readonly socket: ClientSocket
 
-        readonly authenticated: boolean
+        authenticated: boolean
 
         readonly netId: number
 
@@ -993,6 +1144,9 @@ declare global {
         /** How high the player can jump. */
         jumpPower: number
 
+        /** Gravity for player's physics. */
+        gravity: number
+
         /** The current score of the player. */
         score: number
 
@@ -1042,6 +1196,7 @@ declare global {
 
         /** 
          * Calls back whenever the player clicks.
+         * @deprecated New player.keyPressed and player.keyReleased api allows more functionality
          * @callback
          * @example
          * ```js
@@ -1167,6 +1322,14 @@ declare global {
         /** Takes an array of bricks and loads them to the client locally. */
         loadBricks(bricks: Brick[]): Promise<boolean>
 
+        loadSounds(sounds: Array<SoundEmitter>): Promise<boolean>
+
+        playSound(sound: SoundEmitter): Promise<boolean>
+
+        stopSound(sound: SoundEmitter): Promise<boolean>
+
+        destroySound(sound: SoundEmitter): Promise<boolean>
+
         /** Takes an array of bricks, and deletes them all from this client. */
         deleteBricks(bricks: Brick[]): Promise<boolean>
 
@@ -1186,6 +1349,8 @@ declare global {
         setSpeed(speedValue: number): Promise<boolean>
 
         setJumpPower(power: number): Promise<boolean>
+
+        setGravity(gravityValue: number): Promise<boolean>
 
         private _getClients()
 
@@ -1214,7 +1379,7 @@ declare global {
 
         /**
          * Returns player stats in JSON from this API: \
-         * https://api.brick-hill.com/v1/user/profile?id={userId}
+         * https://sandpile.xyz/api/getUserInfoById/?id={userId} 
          * @example
          * ```js
          * Game.on("playerJoin", async(player) => {
@@ -1239,35 +1404,61 @@ declare global {
         ownsAsset(assetId: number): Promise<boolean>
 
         /**
-         * Returns JSON data of total value and direction of users crate \
-         * https://api.brick-hill.com/v1/user/1/value
+         * Returns true or false if the player owns a specified badgeId.
          * 
          * @example
          * ```js
-         * Game.on("playerJoin", async(p) => {
-         *  let worth = await p.getValue(1524)
-         *  console.log("Player is worth: ", worth.value)
+         * Game.on("initialSpawn", async(p) => {
+         *      let ownsBadge = await p.ownsBadge(1256)
+         *      console.log("Player owns badge: ", ownsBadge)
          * })
-        ``` 
-            */
-        getValue(): Promise<JSON>
+         * ``` 
+        */
+        ownsBadge(badgeId: number): Promise<boolean>
 
         /**
-         * Returns JSON data of the users rank in a group, or false if they aren't in the group. \
-         * https://api.brick-hill.com/v1/clan/member?id=1&user=1
+         * Grants a badge to the player. Note that the badge must be offsale to be grantable.
+         * 
          * @example
          * ```js
-         * Game.on("playerJoin", async(player) => {
-         *  const groupData = await player.getRankInGroup(5)
-         *  if (groupData) {
-         *      console.log(groupData)
-         *  } else {
-         *      console.log("Player is not in group.")
-         *  }
+         * Game.on("initialSpawn", async(p) => {
+         *      let response = await p.grantBadge(1256)
+         *      console.log("Grant response: ", response)
          * })
-        * ```
-            */
-        getRankInGroup(groupId: number): Promise<JSON | boolean>
+         * ``` 
+        */
+        grantBadge(badgeId: number): Promise<boolean>
+
+        // /**
+        //  * Returns JSON data of total value and direction of users crate \
+        //  * https://api.brick-hill.com/v1/user/1/value
+        //  * 
+        //  * @example
+        //  * ```js
+        //  * Game.on("playerJoin", async(p) => {
+        //  *  let worth = await p.getValue(1524)
+        //  *  console.log("Player is worth: ", worth.value)
+        //  * })
+        // ``` 
+        //     */
+        // getValue(): Promise<JSON>
+
+        // /**
+        //  * Returns JSON data of the users rank in a group, or false if they aren't in the group. \
+        //  * https://api.brick-hill.com/v1/clan/member?id=1&user=1
+        //  * @example
+        //  * ```js
+        //  * Game.on("playerJoin", async(player) => {
+        //  *  const groupData = await player.getRankInGroup(5)
+        //  *  if (groupData) {
+        //  *      console.log(groupData)
+        //  *  } else {
+        //  *      console.log("Player is not in group.")
+        //  *  }
+        //  * })
+        // * ```
+        //     */
+        // getRankInGroup(groupId: number): Promise<JSON | boolean>
 
         kill(): Promise<any[]>
 
@@ -1437,7 +1628,6 @@ declare class AssetDownloaderClass {
 
     constructor()
 
-    fetchAssetUUID(type: string, assetId: number): Promise<{}>
     getAssetData(assetId: number): Promise<AssetData>
 }
 
@@ -1631,6 +1821,10 @@ declare class GameClass extends EventEmitter {
 
     chatSettings: Record<'rateLimit', number>
 
+    setData: Record<string, never> | SetData
+
+    afterAuth: (player: Player) => Promise<void>
+
     constructor()
 
     /**  
@@ -1682,7 +1876,7 @@ declare class GameClass extends EventEmitter {
      */
     commands<T extends Player>(gameCommand: string[], validator: (Player: T, args: string, next: () => void) => void, callback?: () => void): Disconnectable
     /** Returns the data for provided setId. **/
-    getSetData(setId: number): Promise<any>
+    getSetData(setId: number): Promise<{id: number, name: string, creator: {id: number, name: string}}>
 
     /** "Parents" a bot class to the game. **/
     newBot(bot: Bot): Promise<boolean>
