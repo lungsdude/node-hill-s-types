@@ -1888,6 +1888,8 @@ declare class GameClass extends EventEmitter {
     /** "Parents" a brick class to the game. You should do this after setting all the brick properties. */
     newBrick(brick: Brick): Promise<boolean>
 
+    newSoundEmitter(sound: SoundEmitter): Promise<boolean>
+
     /** Takes an array of bricks, and deletes them all from every client. This will modify world.bricks. */
     deleteBricks(bricks: Brick[]): Promise<boolean>
 
