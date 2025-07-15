@@ -719,7 +719,7 @@ declare global {
         rotation: Vector3
 
         /** The asset id the brick will appear as. */
-        model: number
+        model: AssetID
 
         /** Whether or not the brick is a clickable brick. */
         clickable: boolean
@@ -757,7 +757,7 @@ declare global {
 
         setRotation(rot: Vector3): Promise<boolean>
 
-        setModel(model: number): Promise<boolean>
+        setModel(model: AssetID): Promise<boolean>
 
         setColor(color: string): Promise<boolean>
 
@@ -1534,7 +1534,7 @@ declare global {
         /** If set to false, players will not be able to equip or de-equip the tool. */
         enabled: boolean
         /** The assetId of the tool's model. */
-        model: number
+        model: AssetID
         /** The slotId of the tool. [Used internally].*/
         private _slotId: number
 
@@ -1629,12 +1629,16 @@ declare global {
 
 //Private
 
+// Either the regular ID, such as 1649 from https://sandpile.xyz/item/1649
+// Or a UUID string for the asset 
+type AssetID = number | string
+
 declare class AssetDownloaderClass {
-    cache: Record<number, AssetData>
+    cache: Record<AssetID, AssetData>
 
     constructor()
 
-    getAssetData(assetId: number): Promise<AssetData>
+    getAssetData(assetId: AssetID): Promise<AssetData>
 }
 
 declare interface GameEventListeners<T extends Player>
