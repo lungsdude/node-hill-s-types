@@ -244,8 +244,6 @@ declare global {
     const enum PacketEnums {
         Authentication = 1,
 
-
-
         SendPlayers = 3,
 
         Figure = 4,
@@ -266,8 +264,6 @@ declare global {
 
         Bot = 12,
 
-
-
         ClearMap = 14,
 
         DestroyBot = 15,
@@ -275,6 +271,50 @@ declare global {
         DeleteBrick = 16,
 
         SendBrick = 17,
+
+        /**
+         * @example
+         * ```js
+         * Game.on("initialSpawn", async player => {
+         *     makeModel(world.bricks.filter(b => b.name == "gun"), "gun").send(player.socket)
+         *     player.addTool(tool)
+         * })
+         * 
+         * function makeModel(bricks, uuid) {
+         *     const packet = new PacketBuilder(20)
+         *         .write("string", uuid)
+         *         .write("uint32", bricks.length)
+         * 
+         *     bricks.forEach(brick => {
+         *         packet
+         *             .write("float", brick.position.x) //x
+         *             .write("float", brick.position.y) //y
+         *             .write("float", brick.position.z) //z
+         * 
+         *             .write("float", brick.scale.x) //xs
+         *             .write("float", brick.scale.y) //ys
+         *             .write("float", brick.scale.z) //zs
+         * 
+         *             .write("int32", 0) //xr
+         *             .write("int32", 0) //yr
+         *             .write("int32", brick.rotation) //zr
+         * 
+         *             .write("uint32", util.color.hexToDec(brick.color)) //color
+         *             .write("float", brick.visibility) //alpha
+         *     })
+         *     return packet
+         * }
+         * 
+         * const tool = new Tool("Gun")
+         * tool.model = "joe"
+         * 
+         * AssetDownloader.cache["joe"] = {
+         *     mesh: "gun",
+         *     texture: "stud"  //this is defined in the client 
+         * }
+         * ```
+         */
+        BrickModel = 20,
 
         AddKeypress = 21,
 
