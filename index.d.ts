@@ -1319,6 +1319,9 @@ declare global {
         /** Adds the tool to the user's inventory. */
         addTool(tool: Tool): Promise<boolean>
 
+        /** Unequips the tool (if equipped), and removes it from player's inventory. */
+        removeTool(tool: Tool): Promise<boolean>
+
         /** Takes an array of bricks and loads them to the client locally. */
         loadBricks(bricks: Brick[]): Promise<boolean>
 
@@ -1333,8 +1336,11 @@ declare global {
         /** Takes an array of bricks, and deletes them all from this client. */
         deleteBricks(bricks: Brick[]): Promise<boolean>
 
-        /** Forces the player to unequip the tool, and removes it from their inventory. */
-        destroyTool(tool: Tool): Promise<boolean>
+        /**
+         * @deprecated
+         * Same as player.removeTool
+         */
+        destroyTool: typeof this.removeTool
 
         /** Equips the tool, if It's not already in the user's inventory it will be added first. \
          * If you call this on a tool that is already equipped, it will be unequipped.
