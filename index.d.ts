@@ -177,21 +177,58 @@ declare global {
     }
 
     const enum KeyTypes {
-        Alphabetical = "a-z",
-        Numerical = "0-9",
+        // Alphabetical = "a-z",
+        // Numerical = "0-9",
+        A = "a",
+        B = "b",
+        C = "c",
+        D = "d",
+        E = "e",
+        F = "f",
+        G = "g",
+        H = "h",
+        I = "i",
+        J = "j",
+        K = "k",
+        L = "l",
+        M = "m",
+        N = "n",
+        O = "o",
+        P = "p",
+        Q = "q",
+        R = "r",
+        S = "s",
+        T = "t",
+        U = "u",
+        V = "v",
+        W = "w",
+        X = "x",
+        Y = "y",
+        Z = "z",
+        Zero  = "0",
+        One   = "1",
+        Two   = "2",
+        Three = "3",
+        Four  = "4",
+        Five  = "5",
+        Six   = "6",
+        Seven = "7",
+        Eight = "8",
+        Nine  = "9",
+
         Shift = "shift",
-        Lshift = "lshift",
-        Rshift = "rshift",
+        // Lshift = "lshift",
+        // Rshift = "rshift",
         Control = "control",
-        Lcontrol = "lcontrol",
-        Rcontrol = "rcontrol",
+        // Lcontrol = "lcontrol",
+        // Rcontrol = "rcontrol",
         Alt = "alt",
-        Ralt = "ralt",
-        Lalt = "lalt",
+        // Ralt = "ralt",
+        // Lalt = "lalt",
         Tab = "tab",
         Space = "space",
         Return = "return",
-        Enter = "enter",
+        Enter = "enter", // Same as Return
         Backspace = "backspace",
         Mouse1 = "mouse1",
         Mouse2 = "mouse2",
@@ -201,6 +238,8 @@ declare global {
         Left = "left",
         Right = "right",
     }
+
+    type Key = KeyTypes | string
 
     const enum PacketEnums {
         Authentication = 1,
@@ -1209,6 +1248,7 @@ declare global {
 
         /** 
          * Calls back whenever the player presses a key.
+         * @deprecated New player.keyPressed and player.keyReleased api allows more functionality
          * @callback
          * @example
          * ```js
@@ -1238,22 +1278,20 @@ declare global {
          * })
          * ```
          **/
-
-        keypress(callback: (key: KeyTypes) => void): Disconnectable
+        keypress(callback: (key: Key) => void): Disconnectable
         
         /** 
         * Calls back whenever the player presses a key.
         * @callback
         **/
-
-        keyPressed(key: KeyTypes, callback: (() => void)): Disconnectable
+        keyPressed(key: Key, callback: (() => void)): Disconnectable
         
         /** 
         * Calls back whenever the player releases a key.
         * @callback
         **/
+        keyReleased(key: Key, callback: (() => void)): Disconnectable
 
-        keyReleased(key: KeyTypes, callback: (() => void)): Disconnectable
         /**
          * Kicks the player from the game.
          * @param message The kick message
