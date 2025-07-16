@@ -416,16 +416,16 @@ declare global {
     }
 
     interface Assets {
-        tool: number
-        face: number
-        hat1: number
-        hat2: number
-        hat3: number
-        clothing1: number,
-        clothing2: number,
-        clothing3: number,
-        clothing4: number,
-        clothing5: number,
+        tool: AssetID
+        face: AssetID
+        hat1: AssetID
+        hat2: AssetID
+        hat3: AssetID
+        clothing1: AssetID,
+        clothing2: AssetID,
+        clothing3: AssetID,
+        clothing4: AssetID,
+        clothing5: AssetID,
     }
 
     interface BodyColors {
@@ -939,49 +939,49 @@ declare global {
         constructor()
 
         /** Sets the player's hat1 to the asset id specified. */
-        hat1(hatId: number): Outfit
+        hat1(hatId: AssetID): Outfit
 
         /** Sets the player's hat2 to the asset id specified. */
-        hat2(hatId: number): Outfit
+        hat2(hatId: AssetID): Outfit
 
         /** Sets the player's hat3 to the asset id specified. */
-        hat3(hatId: number): Outfit
+        hat3(hatId: AssetID): Outfit
 
         /** Sets the player's face to the asset id specified. */
-        face(faceId: number): Outfit
+        face(faceId: AssetID): Outfit
 
         /** Sets the player's shirt to the asset id specified. */
         /**
         * @deprecated Use {@link clothing1} instead.
         */
-        shirt(shirtId: number): Outfit
+        shirt(shirtId: AssetID): Outfit
     
         /** Sets the player's pants to the asset id specified. */
         /** 
         * @deprecated Use {@link clothing2} instead.
         */
-        pants(pantsId: number): Outfit
+        pants(pantsId: AssetID): Outfit
     
         /** Sets the player's tshirt to the asset id specified. */
         /** 
         * @deprecated Use {@link clothing3} instead.
         */
-        tshirt(tshirtId: number): Outfit
+        tshirt(tshirtId: AssetID): Outfit
     
         /** Sets the player's clothing1 to the asset id specified. */
-        clothing1(clothingid: number): Outfit
+        clothing1(clothingid: AssetID): Outfit
     
         /** Sets the player's clothing2 to the asset id specified. */
-        clothing2(clothingid: number): Outfit
+        clothing2(clothingid: AssetID): Outfit
     
         /** Sets the player's clothing3 to the asset id specified. */
-        clothing3(clothingid: number): Outfit
+        clothing3(clothingid: AssetID): Outfit
     
         /** Sets the player's clothing4 to the asset id specified. */
-        clothing4(clothingid: number): Outfit
+        clothing4(clothingid: AssetID): Outfit
     
         /** Sets the player's clothing5 to the asset id specified. */
-        clothing5(clothingid: number): Outfit
+        clothing5(clothingid: AssetID): Outfit
 
         /** Sets all of the player's body colors to a hex string. */
         body(color: string): Outfit
@@ -1023,7 +1023,7 @@ declare global {
 
         writeHeader(): void
 
-        writeAsset(assetId: number): Promise<PacketBuilder>
+        writeAsset(assetId: AssetID): Promise<PacketBuilder>
 
         // Convert SmartBuffer to a buffer, compress it, and add uintv size to header.
         private transformPacket()
@@ -1483,8 +1483,8 @@ declare global {
          *      let ownsAsset = await p.ownsAsset(106530)
          *      console.log("Player owns asset: ", ownsAsset)
          * })
-        ``` 
-            */
+         * ``` 
+         */
         ownsAsset(assetId: number): Promise<boolean>
 
         /**
@@ -1510,7 +1510,7 @@ declare global {
          *      console.log("Grant response: ", response)
          * })
          * ``` 
-        */
+         */
         grantBadge(badgeId: number): Promise<boolean>
 
         // /**
