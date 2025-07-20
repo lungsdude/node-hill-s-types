@@ -410,9 +410,9 @@ declare global {
     //Interfaces
 
     interface AssetData {
-        mesh: string
-        texture: string
-        sound: string
+        mesh: string | null
+        texture: string | null
+        sound: string | null
     }
 
     interface Assets {
@@ -798,7 +798,7 @@ declare global {
         rotation: Vector3
 
         /** The asset id the brick will appear as. */
-        model: AssetID
+        model?: AssetID
 
         /** Whether or not the brick is a clickable brick. */
         clickable: boolean
@@ -812,7 +812,7 @@ declare global {
         socket: ClientSocket
 
         /** The shape of the brick. */
-        shape: string
+        shape?: string
 
         private _hitMonitor?: NodeJS.Timeout
 
@@ -1233,13 +1233,13 @@ declare global {
         speech: string
 
         /** The current team the player is on. */
-        team: Team
+        team?: Team
 
         /** An array of tools the player has in their inventory. */
         inventory: Array<Tool>
 
         /** The current tool the player has equipped. */
-        toolEquipped: Tool
+        toolEquipped: Tool | null
 
         /** If set, the player's nametag color (in chat) will be set to the hex value you put. */
         chatColor: string
@@ -1703,13 +1703,14 @@ declare global {
 
         multiply(x: number, y: number, z: number): Vector3
     }
+
+    type AssetID = number | string
 }
 
 //Private
 
 // Either the regular ID, such as 1649 from https://sandpile.xyz/item/1649
 // Or a UUID string for the asset 
-type AssetID = number | string
 
 declare class AssetDownloaderClass {
     cache: Record<AssetID, AssetData>
