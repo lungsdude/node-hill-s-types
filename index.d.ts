@@ -244,6 +244,8 @@ declare global {
     const enum PacketEnums {
         Authentication = 1,
 
+        // LoadMap is deleted for security reasons
+
         SendPlayers = 3,
 
         Figure = 4,
@@ -256,7 +258,7 @@ declare global {
 
         Kill = 8,
 
-        Brick = 9,
+        ModifyBrick = 9,
 
         Team = 10,
 
@@ -271,6 +273,10 @@ declare global {
         DeleteBrick = 16,
 
         SendBrick = 17,
+
+        // Packet with ID 18 ("brick packet") seems to be unimplemented
+
+        TextDisplay = 19
 
         /**
          * @example
@@ -1019,7 +1025,10 @@ declare global {
 
         constructor(packetType: keyof typeof PacketEnums | PacketEnums, options?: PacketBuilderOptions)
 
-        write(type: string, data: number | string | boolean): PacketBuilder
+        write(type: "string", data: string): PacketBuilder
+        write(type: "bool", data: boolean): PacketBuilder
+        write(type: "float" | "uint8" | "int32" | "uint32", data: number): PacketBuilder
+        write(type: "vector3", data: Vector3): PacketBuilder
 
         writeHeader(): void
 
