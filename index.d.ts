@@ -276,7 +276,7 @@ declare global {
 
         // Packet with ID 18 ("brick packet") seems to be unimplemented
 
-        TextDisplay = 19
+        TextDisplay = 19,
 
         /**
          * @example
